@@ -65,34 +65,41 @@ docker-compose restart php56apache
 docker-compose restart mysql
 ```
 
+## Управление контейнерами 
+http://localhost:9000
+
 ## Дополнительные команды
 
 ### Mysql
-- Экспорт баз дынных 
-```docker exec mysql8 sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > ./databases.sql```
-или
-```docker exec -i mysql8 mysqldump --all-databases -uroot -p  > ./databases.sql```
-- Импорт базы данных
+- Экспорт баз данных 
+```bash
+docker exec mysql8 sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > ./databases.sql
 ```
+или
+```bash
+docker exec -i mysql8 mysqldump --all-databases -uroot -p  > ./databases.sql
+```
+- Импорт базы данных
+```bash
 docker exec -i mysql8 mysql -uroot -p database < ./dump.sql
 ```
 
 ### PHP
 - Запуск срипта в командной строке, используюя базовый образ
-```
+```bash
 docker run -it --rm  -v "$PWD":/usr/src/myapp -w /usr/src/myapp php:7.0-cli php  your-script.php
 
 ```
 - Запуск скрипта в командной строке внутри контейнеров php. Путь к сприпту указывается относительно PROJECTS_DIRECTORY
-```
+```bash
 docker exec -i php72apache php project/web/your-script.php
 ```
 ### Apache
 - Reload apache
-```
+```bash
 docker exec php72apache apache2ctl -k graceful
 ```
 - Restart apache
-```
+```bash
 docker exec php72apache apache2ctl -k restart
 ```
