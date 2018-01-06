@@ -1,0 +1,62 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./log/mysql8:/var/log
+      - ./config/mysql8:/etc/mysql/conf.d
+    ports:
+      - "3306:3306"
+    restart: always
+  php72apache:
+    build: ../images/php72apache
+    container_name: php72apache
+    volumes:
+      - ${PROJECTS_DIRECTORY}:/var/www/html
+      - ./config/apache2/sites-available:/etc/apache2/sites-available
+      - ./config/apache2/sites-enabled:/etc/apache2/sites-enabled
+      - ./log/php72apache:/var/log
+      - ./config/php72:/usr/local/etc/php72/
+    ports:
+      - "${PHP7APACHE_PORT}:80"
+    links:
+      - "mysql:database"
+    restart: always
+  php56apache:
+    build: ../images/php56apache
+    container_name: php56apache
+    volumes:
+      - ${PROJECTS_DIRECTORY}:/var/www/html
+      - ${APACHE_CONFIG_DIR}sites-available:/etc/apache2/sites-available
+      - ${APACHE_CONFIG_DIR}sites-enabled:/etc/apache2/sites-enabled
+      - ./log/php56apache:/var/log
+      - ./config/php72:/usr/local/etc/php56/
+    ports:
+      - "${PHP56APACHE_PORT}:80"
+    links:
+      - "mysql:database"
+    restart: always
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    volumes:
+      - /data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "${PORTAINER_PORT}:9000"
+    restart: always
+  dnsmasq:
+    image: jpillora/dnsmasq
+    container_name: dnsmasq
+    ports:
+      - "53:53/udp"
+      - "5380:8080"
+    volumes:
+      - ./config/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+    environment:
+      - HTTP_USER=admin
+      - HTTP_PASS=pass
+    restart: always
